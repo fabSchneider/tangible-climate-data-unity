@@ -145,10 +145,6 @@ Directory.Build.props
 /[Aa]ssets/Samples/
 /[Aa]ssets/Samples.meta
 
-#Ignore Plugins folders
-/[Aa]ssets/Plugins/
-/[Aa]ssets/Plugins.meta
-
 #UserSettings
 /[Uu]serSettings/
 
