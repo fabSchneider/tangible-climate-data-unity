@@ -14,9 +14,9 @@ public static class NetCDF
             throw new FileNotFoundException();
 
         using (DataSet ds = DataSet.Open(ncFilePath))
-        { 
+        {
             return LoadData(ds);
-            }
+        }
     }
 
     public static float CelsiusToKelvin(float celsius)
