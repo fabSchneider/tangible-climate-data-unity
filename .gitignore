@@ -150,3 +150,7 @@ Directory.Build.props
 
 #UIElementsSchema
 /UIElementsSchema/
+
+#NC data files
+*.nc
+*nc.meta
