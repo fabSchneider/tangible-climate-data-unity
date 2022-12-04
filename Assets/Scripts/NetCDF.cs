@@ -5,7 +5,7 @@ using UnityEngine;
 
 public static class NetCDF
 {
-    public static float[,,] Load(string ncFilePath)
+    public static float[,,] Load2D(string ncFilePath, string dataVariable)
     {
         if (string.IsNullOrEmpty(ncFilePath))
             throw new ArgumentException(nameof(ncFilePath), "File path is invalid");
@@ -15,7 +15,7 @@ public static class NetCDF
 
         using (DataSet ds = DataSet.Open(ncFilePath))
         {
-            return LoadData(ds);
+            return LoadData2D(ds, dataVariable);
         }
     }
 
@@ -29,17 +29,13 @@ public static class NetCDF
         return kelvin - 273.15f;
     }
 
-    private static float[,,] LoadData(DataSet ds)
+    private static float[,,] LoadData2D(DataSet ds, string dataVariable)
     {
-        Variable lon = ds["lon"];
-        Variable lat = ds["lat"];
-        Variable t2 = ds["t2"];
-
-        int[] shape = lon.GetShape();
+        Variable data = ds[dataVariable];
 
         MultipleDataResponse res = ds.GetMultipleData(
-            DataRequest.GetData(t2, null, null));
+            DataRequest.GetData(data));
 
-        return (float[,,])res[t2.ID].Data;
+        return (float[,,])res[data.ID].Data;
     }
 }

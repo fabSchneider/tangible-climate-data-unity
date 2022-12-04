@@ -8,7 +8,7 @@ using System.IO;
 
 public class CreateNCVolumeWindow : EditorWindow
 {
-    [MenuItem("NetCDF/Create NC Volume")]
+    [MenuItem("TCD/Create NC Volume")]
     public static void Open()
     {
         CreateNCVolumeWindow window = GetWindow<CreateNCVolumeWindow>();
@@ -20,14 +20,16 @@ public class CreateNCVolumeWindow : EditorWindow
     {
         ObjectField ncFileField = new ObjectField("NC file");
         ncFileField.objectType = typeof(Object);
+        TextField variableField = new TextField("Variable Name");
         GradientField gradientField = new GradientField("Color Gradient");
         Vector2Field tempRangeField = new Vector2Field("Temperature Range");
         tempRangeField.value = new Vector2(0, 25);
 
         Button createButton = new Button(() => CreateVolumeTexture(
-            Path.Combine(Directory.GetCurrentDirectory(), AssetDatabase.GetAssetPath(ncFileField.value)), 
-            gradientField.value, 
-            tempRangeField.value.x, 
+            Path.Combine(Directory.GetCurrentDirectory(), AssetDatabase.GetAssetPath(ncFileField.value)),
+            variableField.value,
+            gradientField.value,
+            tempRangeField.value.x,
             tempRangeField.value.y));
         createButton.text = "Create Texture";
 
@@ -38,11 +40,11 @@ public class CreateNCVolumeWindow : EditorWindow
         rootVisualElement.Add(createButton);
     }
 
-    public void CreateVolumeTexture(string ncFile, Gradient tempGradient, float minTemp, float maxTemp)
+    public void CreateVolumeTexture(string ncFile, string varName, Gradient tempGradient, float minTemp, float maxTemp)
     {
         Debug.Log("Creating Volume Texture from: " + ncFile);
 
-        float[,,] data = NetCDF.Load(ncFile);    
+        float[,,] data = NetCDF.Load2D(ncFile, varName);    
 
         // Configure the texture
         TextureFormat format = TextureFormat.RGBA32;
