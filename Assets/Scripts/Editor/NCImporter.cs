@@ -16,10 +16,24 @@ public class NCImporter : ScriptedImporter
     [Serializable]
     public enum Conversion
     {
-        None,
-        KelvinToCelsius,
-        Custom
+        None = 0,
+        Custom = 1,
+        KelvinToCelsius = 2,
+
     }
+
+    [Serializable]
+    public class VariableInfo
+    {
+        public string name;
+        public int[] shape;
+
+        public override string ToString()
+        {
+            return name + " " + string.Join('x', shape);
+        }
+    }
+
 
     [Tooltip("The conversion that should be applied to the data")]
     public Conversion conversion;
@@ -27,27 +41,35 @@ public class NCImporter : ScriptedImporter
     public float customConversionBase;
     public float customConversionFactor;
 
-    public string variableName;
+    public List<VariableInfo> availableVariables;
+    public int selectedVariable = -1;
+    public Vector2Int[] shapeRange;
     public override void OnImportAsset(AssetImportContext ctx)
     {
         DataSet ds = DataSet.Open(ctx.assetPath, ResourceOpenMode.ReadOnly);
         NCAsset asset = ScriptableObject.CreateInstance<NCAsset>();
-        asset.variables = ds.Variables.Select(v => new NCAsset.VariableInfo() { name = v.Name, shape = v.GetShape() }).ToList();
+        availableVariables = ds.Variables.Select(v => new VariableInfo() { name = v.Name, shape = v.GetShape() }).ToList();
 
-        if (!string.IsNullOrEmpty(variableName))
+        if (selectedVariable != -1)
         {
             // import data if variable is in the list of variables
-            NCAsset.VariableInfo varInfo = asset.variables.FirstOrDefault(v => v.name == variableName);
+            VariableInfo varInfo = availableVariables[selectedVariable];
             if (varInfo != null)
             {
                 Variable dataVar = ds[varInfo.name];
 
-                MultipleDataResponse res = ds.GetMultipleData(
-                    DataRequest.GetData(dataVar));
+                int[] shape = new int[shapeRange.Length];
+                int[] origin = new int[shapeRange.Length];
+                for (int i = 0; i < shapeRange.Length; i++)
+                {
+                    Vector2Int range = shapeRange[i];
+                    int lower = Mathf.Min(range.x, range.y);
+                    int upper = Mathf.Max(range.x, range.y);
+                    shape[i] = upper - lower;
+                    origin[i] = lower;
+                }
 
-                int[] shape = dataVar.GetShape();
-                Array dataArr = dataVar.GetData();
-
+                Array dataArr = dataVar.GetData(origin, shape);
                 int flatLength = shape.Aggregate((a, b) => a * b);
 
                 Func<float, float> converter = null;
@@ -62,6 +84,7 @@ public class NCImporter : ScriptedImporter
                 }
 
                 float[] flatData = Flatten(dataArr, shape, converter, out float min, out float max);
+                asset.variable = varInfo.name;
                 asset.shape = shape;
                 asset.data = flatData;
                 asset.minValue = min;

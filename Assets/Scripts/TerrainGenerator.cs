@@ -55,8 +55,8 @@ public class TerrainGenerator : MonoBehaviour
         terrainData.name = "TerrainGen";
 
         // get the dimensions of the array in x and y direction
-        int sizeX = ncAsset.shape[1];
-        int sizeY = ncAsset.shape[2];
+        int sizeX = ncAsset.shape[2];
+        int sizeY = ncAsset.shape[3];
 
         // height map resolution needs to be power of two + 1
         // so we take the smallest of the 2 data dimensions
@@ -139,8 +139,8 @@ public class TerrainGenerator : MonoBehaviour
             for (int y = 0; y < size; y++)
             {
                 // here we get the actual data for the base month and the month after
-                float baseData = ncAsset.Get(baseMonth, x, y);
-                float nextData = ncAsset.Get(nextMonth, x, y);
+                float baseData = ncAsset.Get(baseMonth, 0, x, y);
+                float nextData = ncAsset.Get(nextMonth, 0, x, y);
 
                 // we interpolate between base and next
                 // using the fractional value we extracted before

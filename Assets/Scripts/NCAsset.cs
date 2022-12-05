@@ -5,14 +5,7 @@ using UnityEngine;
 
 public class NCAsset : ScriptableObject
 {
-    [Serializable]
-    public class VariableInfo 
-    {
-        public string name;
-        public int[] shape;
-    }
-
-    public List<VariableInfo> variables;
+    public string variable;
     public int[] shape;
     public float minValue;
     public float maxValue; 
